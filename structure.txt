@@ -1,0 +1,17 @@
+.
+./backend
+./backend/app
+./backend/app/__pycache__
+./backend/app/api
+./backend/app/core
+./backend/app/core/__pycache__
+./backend/app/models
+./backend/app/services
+./backend/src
+./backend/src/backend
+./frontend
+./frontend/.next
+./frontend/.next/types
+./frontend/public
+./frontend/src
+./frontend/src/app
