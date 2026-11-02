@@ -15,7 +15,12 @@ def _build_model(model_id: str) -> Runnable:
         if not settings.openai_api_key:
             raise ValueError("OPENAI_API_KEY is not set in .env")
         kwargs["api_key"] = settings.openai_api_key
+    elif provider == "groq": 
+        if not settings.groq_api_key:
+            raise ValueError("GROQ_API_KEY is not set in .env")
+        kwargs["api_key"] = settings.groq_api_key
     elif provider in ["google_genai", "google-genai"]:
+        # ... baqi code same rahega
         if not settings.google_api_key:
             raise ValueError("GOOGLE_API_KEY is not set in .env")
         kwargs["api_key"] = settings.google_api_key

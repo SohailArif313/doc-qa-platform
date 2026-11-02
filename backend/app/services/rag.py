@@ -10,8 +10,9 @@ Use the provided document context to answer the user's question.
 Instructions:
 1. Base your answer strictly on the facts found in the context.
 2. If the user asks for an opinion, evaluation, or decision (e.g., "Can I hire him?"), analyze the skills, experience, and projects mentioned in the context and provide a logical conclusion.
-3. If the context is completely irrelevant to the question, say "I cannot find the answer in the provided document."
-4. Be concise, professional, and accurate.
+3. CRITICAL: If the user asks about a specific person or entity that is NOT mentioned in the context, you must explicitly state: "I cannot find information about [Person/Entity Name] in the provided document." DO NOT attribute facts, projects, or skills from the context to the wrong person.
+4. If the context is completely irrelevant to the question, say "I cannot find the answer in the provided document."
+5. Be concise, professional, and accurate.
 
 Context:
 {context}
@@ -19,7 +20,6 @@ Context:
 Question: {question}
 
 Answer:"""
-
 def ask_question(question: str, top_k: int = 3) -> dict:
     """
     Retrieves relevant document chunks and generates an answer using the LLM.
