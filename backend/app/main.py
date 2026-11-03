@@ -1,6 +1,8 @@
 import shutil
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import StreamingResponse
+from app.services.rag import stream_question
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.models.schemas import ChatRequest, ChatResponse, UploadResponse, SourceSchema
@@ -71,3 +73,8 @@ def chat(req: ChatRequest) -> ChatResponse:
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+    
+@app.post("/api/chat/stream")
+async def chat_stream(req: ChatRequest): # Add async here
+    return StreamingResponse(stream_question(req.message), media_type="text/event-stream")

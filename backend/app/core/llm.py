@@ -9,7 +9,7 @@ def _build_model(model_id: str) -> Runnable:
         raise ValueError(f"Invalid model id: {model_id!r}. Use 'provider:model'.")
 
     # Keeping a 15-second timeout for safety
-    kwargs: dict = {"temperature": 0, "timeout": 15.0}
+    kwargs: dict = {"temperature": 0, "timeout": 15.0,"max_tokens": 300}
 
     if provider == "openai":
         if not settings.openai_api_key:
