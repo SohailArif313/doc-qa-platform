@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { UserButton, useAuth } from "@clerk/nextjs";
 import { uploadPdf, streamMessage, Source } from "@/lib/api";
 
 interface Message {
@@ -15,6 +16,7 @@ interface Message {
 }
 
 export default function ChatPage() {
+  const { getToken } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -78,7 +80,10 @@ export default function ChatPage() {
     setIsUploading(true);
 
     try {
-      await uploadPdf(file);
+      const token = await getToken();
+      if (!token) throw new Error("Not authenticated");
+      
+      await uploadPdf(file, token);
       setHasDocument(true);
 
       setMessages([
@@ -131,6 +136,7 @@ export default function ChatPage() {
 
     setIsLoading(true);
     abortControllerRef.current = new AbortController();
+    const token = await getToken();
 
     await streamMessage(
       userMessage,
@@ -170,7 +176,8 @@ export default function ChatPage() {
           setIsLoading(false);
         }
       },
-      abortControllerRef.current.signal
+      abortControllerRef.current.signal,
+      token || ""
     );
   };
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
@@ -185,7 +192,7 @@ export default function ChatPage() {
         </>
       )}
 
-      {/* ... Header same rahega ... */}
+      {}
       <header className="shrink-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800 px-6 py-4 flex items-center justify-between z-20 transition-colors duration-300">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg shadow-md">
@@ -201,6 +208,14 @@ export default function ChatPage() {
           <Button variant="outline" size="icon" onClick={toggleTheme} className="rounded-full border-slate-200 dark:border-slate-700 dark:bg-slate-800">
             {isDarkMode ? <Sun className="h-4 w-4 text-slate-300" /> : <Moon className="h-4 w-4 text-slate-600" />}
           </Button>
+
+          <UserButton 
+            appearance={{
+              elements: {
+                avatarBox: "w-9 h-9 border border-slate-200 dark:border-slate-700 shadow-sm"
+              }
+            }}
+          />
 
           <input type="file" accept=".pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
           

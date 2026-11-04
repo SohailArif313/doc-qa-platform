@@ -11,12 +11,15 @@ export interface ChatResponse {
   model: string;
 }
 
-export async function uploadPdf(file: File) {
+export async function uploadPdf(file: File, token: string) {
   const formData = new FormData();
   formData.append("file", file);
 
   const response = await fetch(`${API_URL}/api/upload`, {
     method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
     body: formData,
   });
 
@@ -51,14 +54,18 @@ export async function streamMessage(
   onSources: (sources: Source[]) => void,
   onError: (error: string) => void,
   onComplete: () => void,
-  signal?: AbortSignal // <-- Naya parameter
+  signal?: AbortSignal,
+  token?: string
 ) {
   try {
     const response = await fetch(`${API_URL}/api/chat/stream`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify({ message }),
-      signal, // <-- Yahan pass kiya
+      signal, 
     });
 
     if (!response.ok) throw new Error("Failed to stream response");

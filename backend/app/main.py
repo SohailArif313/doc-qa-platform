@@ -9,6 +9,8 @@ from app.models.schemas import ChatRequest, ChatResponse, UploadResponse, Source
 from app.services.pdf_loader import load_and_split_pdf
 from app.services.vector_store import create_vector_store
 from app.services.rag import ask_question
+from app.core.auth import require_auth
+from fastapi import Depends
 from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI(title=settings.app_name)
@@ -59,7 +61,7 @@ def upload_document(file: UploadFile = File(...)):
     )
 
 @app.post("/api/chat", response_model=ChatResponse)
-def chat(req: ChatRequest) -> ChatResponse:
+def chat(req: ChatRequest,auth_data = Depends(require_auth)) -> ChatResponse:
     """
     Takes a user question, retrieves context from the vector store, and generates an answer.
     """
@@ -76,5 +78,5 @@ def chat(req: ChatRequest) -> ChatResponse:
     
     
 @app.post("/api/chat/stream")
-async def chat_stream(req: ChatRequest): # Add async here
+async def chat_stream(req: ChatRequest,auth_data = Depends(require_auth)): # Add async here
     return StreamingResponse(stream_question(req.message), media_type="text/event-stream")
