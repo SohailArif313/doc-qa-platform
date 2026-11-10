@@ -57,7 +57,7 @@ app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origin_list,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -72,7 +72,7 @@ def health() -> dict[str, str]:
     return {"status": "ok", "environment": settings.environment}
 
 @app.post("/api/upload", response_model=UploadResponse)
-@limiter.limit("2/minute")
+@limiter.limit("1/minute")
 def upload_document(
     request: Request,  
     file: UploadFile = File(...),
