@@ -3,12 +3,32 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 export interface Source {
   file: string;
   page: number;
+  file_url?: string;
+  snippet?: string;
 }
 
 export interface ChatResponse {
   answer: string;
   sources: Source[];
   model: string;
+}
+
+export async function fetchChatSessions(token: string) {
+  const response = await fetch(`${API_URL}/api/chat/sessions`, {
+    headers: { "Authorization": `Bearer ${token}` },
+  });
+
+  if (!response.ok) throw new Error("Failed to fetch sessions");
+  return response.json();
+}
+
+export async function fetchChatHistory(sessionId: string, token: string) {
+  const response = await fetch(`${API_URL}/api/chat/history?session_id=${encodeURIComponent(sessionId)}`, {
+    headers: { "Authorization": `Bearer ${token}` },
+  });
+
+  if (!response.ok) throw new Error("Failed to fetch chat history");
+  return response.json();
 }
 
 export async function uploadPdf(file: File, token: string) {
@@ -30,26 +50,9 @@ export async function uploadPdf(file: File, token: string) {
   return response.json();
 }
 
-export async function sendMessage(message: string): Promise<ChatResponse> {
-  const response = await fetch(`${API_URL}/api/chat`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ message }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to get answer");
-  }
-  return response.json();
-}
-
-
-
 export async function streamMessage(
   message: string,
+  sessionId: string, // <-- Yahan comma lagaya gaya hai
   onChunk: (text: string) => void,
   onSources: (sources: Source[]) => void,
   onError: (error: string) => void,
@@ -64,7 +67,7 @@ export async function streamMessage(
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, session_id: sessionId }),
       signal, 
     });
 
@@ -97,7 +100,7 @@ export async function streamMessage(
   } catch (error: any) {
     if (error.name === "AbortError") {
       console.log("Stream aborted by user");
-      onComplete(); // Treat abort as completion
+      onComplete(); 
     } else {
       onError(error.message);
     }

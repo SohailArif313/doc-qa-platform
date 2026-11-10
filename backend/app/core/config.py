@@ -13,11 +13,15 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000"
 
     google_api_key: str = ""
-    # openai_api_key: str = "" 
+    openai_api_key: str = ""
     groq_api_key: str = ""
     
     clerk_secret_key: str = ""
     clerk_jwks_url: str = ""
+    
+    database_url: str = ""
+    qdrant_url: str = ""
+    qdrant_api_key: str = ""
     # Defaults updated to Groq for chat, Gemini for embeddings
     primary_model: str = "groq:openai/gpt-oss-120b"
     embedding_model: str = "google_genai:gemini-embedding-001"
